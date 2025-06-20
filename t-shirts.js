@@ -1,4 +1,4 @@
-const tshirts = [
+const tshirtsData = [
   {
     title: 'Blue T-Shirt',
     image: 'blue-t-shirt.jpg',
@@ -63,3 +63,84 @@ const tshirts = [
     quantity: 1
   }
 ]
+
+function TShirt(props) {
+  const tshirt = props.tshirt;
+
+  function handleQuantityChange(e) {
+    const newQuantity = parseInt(e.target.value);
+    props.onQuantityChange(tshirt.title, newQuantity);
+  }
+
+  function handleBuyClick() {
+    props.onBuy(tshirt.title);
+  }
+
+  return (
+    <div className="tshirt">
+      <h3>{tshirt.title}</h3>
+    <img src={'images/' + tshirt.image} alt={tshirt.title} width="100" />
+      <p>Price: ${tshirt.price.toFixed(2)}</p>
+      {tshirt.stock === 0 ? (
+        <p><strong>Out of Stock</strong></p>
+      ) : (
+        <div>
+          <p>Stock: {tshirt.stock}</p>
+          <label>
+            Quantity:
+            <select value={tshirt.quantity} onChange={handleQuantityChange}>
+              {Array.from({ length: tshirt.stock }, (_, i) => (
+                <option key={i + 1} value={i + 1}>{i + 1}</option>
+              ))}
+            </select>
+          </label>
+          <button onClick={handleBuyClick}>Buy</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const [tshirts, setTshirts] = React.useState(tshirtsData);
+
+  function handleBuy(title) {
+    setTshirts(prev =>
+      prev.map(t =>
+        t.title === title
+          ? { ...t, stock: t.stock - t.quantity }
+          : t
+      )
+    );
+  }
+
+  function handleQuantityChange(title, quantity) {
+    setTshirts(prev =>
+      prev.map(t =>
+        t.title === title
+          ? { ...t, quantity: quantity }
+          : t
+      )
+    );
+  }
+
+return (
+  <div>
+    <h1>T-Shirt Store</h1>
+    <div className="store">
+      {tshirts.map(tshirt => (
+        <TShirt
+          key={tshirt.title}
+          tshirt={tshirt}
+          onBuy={handleBuy}
+          onQuantityChange={handleQuantityChange}
+        />
+      ))}
+    </div>
+  </div>
+);
+
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
